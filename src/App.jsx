@@ -52,7 +52,7 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage }) {
         {...listeners}
         style={{ cursor: "grab", padding: "0 8px", color: "#aaa", fontSize: "18px" }}
       >
-        ⠿
+        â ¿
       </div>
       {page.thumbnail && (
         <img
@@ -62,11 +62,105 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage }) {
         />
       )}
       <span style={{ flex: 1 }}>
-        {pdfFiles[page.fileId]?.name} - {page.pageIndex + 1}ページ
+        {pdfFiles[page.fileId]?.name} - {page.pageIndex + 1}ãã¼ã¸
       </span>
-      <button onClick={() => moveUp(index)}>↑</button>
-      <button onClick={() => moveDown(index)} style={{ marginLeft: "4px" }}>↓</button>
-      <button onClick={() => removePage(index)} style={{ marginLeft: "4px" }}>削除</button>
+      <button onClick={() => moveUp(index)}>â</button>
+      <button onClick={() => moveDown(index)} style={{ marginLeft: "4px" }}>â</button>
+      <button onClick={() => removePage(index)} style={{ marginLeft: "4px" }}>åé¤</button>
+    </div>
+  )
+}
+
+function SeoContent() {
+  const [openFaq, setOpenFaq] = useState(null)
+  const faqs = [
+    { q: "å®å¨ç¡æã§ä½¿ãã¾ããï¼", a: "ã¯ããå®å¨ç¡æã§ããä¼å¡ç»é²ãã¯ã¬ã¸ããã«ã¼ããä¸è¦ã§ãããµã¦ã®æ©è½ãå¶éãªããä½¿ãããã ãã¾ãã" },
+    { q: "ãã¡ã¤ã«ã¯ãµã¼ãã¼ã«ã¢ããã­ã¼ãããã¾ããï¼", a: "ããã¾ããããã®ãã¼ã«ã¯ãã¹ã¦ãã©ã¦ã¶åï¼ãä½¿ãã®ç«¯æ«ä¸ï¼ã§åä½ãã¾ããPDFãã¡ã¤ã«ãå¤é¨ãµã¼ãã¼ã«éä¿¡ããããã¨ã¯ä¸åããã¾ããã®ã§ãæ©å¯ææ¸ãå®å¨ã«ãä½¿ãããã ãã¾ãã" },
+    { q: "ä½ãã¼ã¸ã¾ã§ã»ä½ãã¡ã¤ã«ã¾ã§çµåã§ãã¾ããï¼", a: "ãã¼ã¸æ°ã»ãã¡ã¤ã«æ°ã«å¶éã¯ããã¾ãããããããéå¸¸ã«å¤§ããªãã¡ã¤ã«ã®å ´åã¯ãã©ã¦ã¶ã®ã¡ã¢ãªç¶æ³ã«ãã£ã¦ã¯å¦çã«æéããããå ´åãããã¾ãã" },
+    { q: "å¯¾å¿ãã¦ãããã©ã¦ã¶ã¯ï¼", a: "Google ChromeãMozilla FirefoxãMicrosoft EdgeãSafariï¼ææ°çï¼ã«å¯¾å¿ãã¦ãã¾ããã¹ãã¼ããã©ã³ã»ã¿ãã¬ããã®ãã©ã¦ã¶ã§ããå©ç¨ããã ãã¾ãã" },
+    { q: "ãã¼ã¸ã®é çªã¯èªç±ã«å¤ãããã¾ããï¼", a: "ã¯ãããã©ãã°ï¼ãã­ãã§ã§èªç±ã«ä¸¦ã¹æ¿ããã§ãã¾ããã¾ãââãã¿ã³ã§ã®ç§»åãããã¼ã¸åä½ã®åé¤ã«ãå¯¾å¿ãã¦ãã¾ãã" },
+  ]
+  const s = {
+    wrap: { maxWidth: "780px", margin: "0 auto", fontFamily: "sans-serif", color: "#333", lineHeight: "1.7" },
+    section: { marginTop: "48px", paddingTop: "32px", borderTop: "1px solid #eee" },
+    h2: { fontSize: "20px", fontWeight: "700", marginBottom: "16px", color: "#111" },
+    features: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginTop: "16px" },
+    card: { background: "#fff8f8", border: "1px solid #f0d0d0", borderRadius: "8px", padding: "16px" },
+    cardTitle: { fontWeight: "700", fontSize: "15px", marginBottom: "8px", color: "#c41e1e" },
+    steps: { counterReset: "step", listStyle: "none", padding: "0", marginTop: "16px" },
+    step: { display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-start" },
+    stepNum: { background: "#c41e1e", color: "#fff", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", flexShrink: "0", fontSize: "14px" },
+    faqItem: { borderBottom: "1px solid #eee" },
+    faqQ: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", cursor: "pointer", fontWeight: "600", fontSize: "15px" },
+    faqA: { padding: "0 0 14px", color: "#555", fontSize: "14px" },
+  }
+  return (
+    <div style={s.wrap}>
+      <section style={s.section} aria-labelledby="features-heading">
+        <h2 id="features-heading" style={s.h2}>ãã®ãã¼ã«ã®ç¹å¾´</h2>
+        <div style={s.features}>
+          <div style={s.card}>
+            <div style={s.cardTitle}>ð ãã¡ã¤ã«ã¯ç«¯æ«ããåºãªã</div>
+            <p style={{ margin: 0, fontSize: "14px" }}>ãã¹ã¦ã®å¦çã¯ãã©ã¦ã¶åã§å®çµãPDFãå¤é¨ãµã¼ãã¼ã«éä¿¡ããããã¨ã¯ä¸åããã¾ããã</p>
+          </div>
+          <div style={s.card}>
+            <div style={s.cardTitle}>ð å®å¨ç¡æã»ç»é²ä¸è¦</div>
+            <p style={{ margin: 0, fontSize: "14px" }}>ä¼å¡ç»é²ãã¤ã³ã¹ãã¼ã«ãä¸è¦ããã©ã¦ã¶ã§éãã ãã§PDFã®çµåãç¡æã§ã§ãã¾ãã</p>
+          </div>
+          <div style={s.card}>
+            <div style={s.cardTitle}>ð ãã¼ã¸åä½ã§ä¸¦ã¹æ¿ã</div>
+            <p style={{ margin: 0, fontSize: "14px" }}>è¤æ°ã®PDFããã¼ã¸åä½ã§èª­ã¿è¾¼ã¿ããµã ãã¤ã«ãç¢ºèªããªããèªç±ã«é åºãå¤ãã¦çµåã§ãã¾ãã</p>
+          </div>
+        </div>
+      </section>
+
+      <section style={s.section} aria-labelledby="howto-heading">
+        <h2 id="howto-heading" style={s.h2}>ä½¿ãæ¹ï¼3ã¹ãããï¼</h2>
+        <ol style={s.steps}>
+          {[
+            ["PDFãè¿½å ", "ä¸ã®ã¨ãªã¢ã«PDFãã¡ã¤ã«ããã©ãã°ï¼ãã­ãã§ãªããããã¡ã¤ã«ãé¸æãããè¤æ°ã®PDFãé¸ã³ã¾ãã"],
+            ["ãã¼ã¸ãä¸¦ã¹æ¿ã", "èª­ã¿è¾¼ãã PDFããã¼ã¸ä¸è¦§ã¨ãã¦è¡¨ç¤ºããã¾ãããµã ãã¤ã«ãç¢ºèªããªããããã©ãã°ã¾ãã¯ââãã¿ã³ã§é çªãæ´ãã¾ããä¸è¦ãªãã¼ã¸ã¯ãåé¤ãã§é¤å¤ã§ãã¾ãã"],
+            ["PDFãçµåã»ãc¦ã³ã­ã¼ã", "ãPDFãçµåããã¿ã³ãæ¼ãã¨ãä¸¦ã¹æ¿ããé ã«ãã¼ã¸ãçµåããã¦ãã¦ã³ã­ã¼ãããã¾ãã"],
+          ].map(([title, desc], i) => (
+            <li key={i} style={s.step}>
+              <span style={s.stepNum}>{i + 1}</span>
+              <div><strong>{title}</strong><br /><span style={{ fontSize: "14px", color: "#555" }}>{desc}</span></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section style={s.section} aria-labelledby="faq-heading">
+        <h2 id="faq-heading" style={s.h2}>ããããè³ªå</h2>
+        <dl>
+          {faqs.map((faq, i) => (
+            <div key={i} style={s.faqItem}>
+              <dt
+                style={s.faqQ}
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                role="button"
+                aria-expanded={openFaq === i}
+              >
+                <span>Q. {faq.q}</span>
+                <span style={{ fontSize: "18px", color: "#c41e1e" }}>{openFaq === i ? "â" : "+"}</span>
+              </dt>
+              {openFaq === i && (
+                <dd style={s.faqA}>A. {faq.a}</dd>
+              )}
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section style={{ ...s.section, marginBottom: "48px" }} aria-labelledby="about-heading">
+        <h2 id="about-heading" style={s.h2}>PDFçµåãã¼ã«ã«ã¤ãã¦</h2>
+        <p style={{ fontSize: "14px", color: "#555" }}>
+          ãã®PDFçµåãã¼ã«ã¯ãè¤æ°ã®PDFãã¡ã¤ã«ãç¡æã§ãªã³ã©ã¤ã³ã«çµåï¼ã®ã¼ã¸ï¼ã§ããWebã¢ããªã§ãã
+          pdf-libããã³pdfjs-distãä½¿ç¨ããã¯ã©ã¤ã¢ã³ããµã¤ãå¦çã«ããããã¡ã¤ã«ã¯ä¸åãµã¼ãã¼ã«éä¿¡ããã¾ããã
+          ãã¼ã¸åä½ã§ã®ä¸¦ã¹æ¿ãã»åé¤ã«å¯¾å¿ãã¦ããããµã ãã¤ã«ãã¬ãã¥ã¼ã§åå®¹ãç¢ºèªããªããç·¨éã§ãã¾ãã
+          å¥ç´æ¸ã»è«æ±æ¸ã»å ±åæ¸ãªã©ãæ©å¯æ§ã®é«ãPDFã­çµåã«ãå®å¿ãã¦ãå©ç¨ããã ãã¾ãã
+        </p>
+      </section>
     </div>
   )
 }
@@ -174,8 +268,11 @@ function App() {
   const sensors = useSensors(useSensor(PointerSensor))
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>PDF結合アプリ</h1>
+    <div style={{ padding: "40px", maxWidth: "860px", margin: "0 auto" }}>
+      <h1>PDFçµåãã¼ã«ï½ç¡æã»ã¢ããã­ã¼ãä¸è¦</h1>
+      <p style={{ color: "#555", marginBottom: "24px" }}>
+        è¤æ°ã®PDFããã¼ã¸åä½ã§ä¸¦ã¹æ¿ãã¦çµåã§ãã¾ãããã¡ã¤ã«ã¯ç«¯æ«ããåºã¾ããã
+      </p>
 
       <div
         onDragOver={(e) => e.preventDefault()}
@@ -184,10 +281,13 @@ function App() {
           addFiles(e.dataTransfer.files)
         }}
         style={{
-          border: "2px dashed gray",
+          border: "2px dashed #c41e1e",
           padding: "40px",
           marginBottom: "20px",
           cursor: "pointer",
+          borderRadius: "8px",
+          textAlign: "center",
+          background: "#fff8f8",
         }}
       >
         <input
@@ -196,12 +296,9 @@ function App() {
           accept=".pdf"
           onChange={(e) => addFiles(e.target.files)}
         />
-        <br />
-        <br />
-        ここにPDFをドラッグ
+        <br /><br />
+        ð ããã«PDFããã©ãã°ï¼ãã­ãã
       </div>
-
-      <br />
 
       <DndContext
         sensors={sensors}
@@ -226,18 +323,25 @@ function App() {
         </SortableContext>
       </DndContext>
 
-      <br />
+      {pages.length > 0 && (
+        <button
+          onClick={mergePDFs}
+          style={{
+            padding: "12px 28px",
+            fontSize: "16px",
+            cursor: "pointer",
+            background: "#c41e1e",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            marginTop: "16px",
+          }}
+        >
+          PDFãçµåãã¦ãã¦ã³ã­ã¼ã
+        </button>
+      )}
 
-      <button
-        onClick={mergePDFs}
-        style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        PDFを結合
-      </button>
+      <SeoContent />
     </div>
   )
 }
