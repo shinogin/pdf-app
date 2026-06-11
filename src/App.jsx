@@ -342,6 +342,12 @@ function App() {
       )}
 
       <SeoContent />
+
+      <footer style={{ textAlign: 'center', padding: '32px 0 16px', fontSize: '13px', color: '#999', borderTop: '1px solid #eee', marginTop: '8px' }}>
+        <a href="/privacy.html" style={{ color: '#999' }}>プライバシーポリシー</a>
+        {' | '}
+        <a href="https://github.com/shinogin/pdf-app" target="_blank" rel="noopener" style={{ color: '#999' }}>GitHub</a>
+      </footer>
     </div>
   )
 }
