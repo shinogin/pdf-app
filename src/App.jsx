@@ -63,7 +63,7 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage, rot
         {...listeners}
         style={{ cursor: "grab", color: "#ccc", fontSize: "20px" }}
       >
-        ⠿
+        â ¿
       </div>
       {page.thumbnail && (
         <img
@@ -228,6 +228,9 @@ function App() {
           textAlign: "center",
           background: "#fafafa",
           cursor: "pointer",
+          borderRadius: "8px",
+          textAlign: "center",
+          background: "#fff8f8",
         }}
       >
         <input
