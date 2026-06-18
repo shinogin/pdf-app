@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pdf-app-five-beta.vercel.app/sitemap.xml
+Sitemap: https://pdf-merge-jp.vercel.app/sitemap.xml
