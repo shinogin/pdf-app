@@ -1,5 +1,5 @@
-import { useState, useRef } from "react"
-import { PDFDocument } from "pdf-lib"
+﻿import { useState, useRef } from "react"
+import { PDFDocument, degrees } from "pdf-lib"
 import * as pdfjsLib from "pdfjs-dist"
 import {
   DndContext,
@@ -21,7 +21,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).href
 
-function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage }) {
+const btnStyle = {
+  padding: "4px 10px",
+  border: "1px solid #ddd",
+  borderRadius: "4px",
+  background: "#f9f9f9",
+  cursor: "pointer",
+  fontSize: "14px",
+}
+
+function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage, rotatePage }) {
   const {
     attributes,
     listeners,
@@ -37,36 +46,48 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage }) {
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        padding: "10px",
-        marginBottom: "10px",
-        border: "1px solid gray",
+        padding: "12px 16px",
+        marginBottom: "8px",
+        border: "1px solid #ddd",
+        borderRadius: "8px",
         display: "flex",
         alignItems: "center",
-        gap: "10px",
-        background: isDragging ? "#f0f0f0" : "white",
+        gap: "12px",
+        background: isDragging ? "#f5f5f5" : "#fff",
+        boxShadow: isDragging ? "0 4px 12px rgba(0,0,0,0.15)" : "0 1px 3px rgba(0,0,0,0.06)",
         userSelect: "none",
       }}
     >
       <div
         {...attributes}
         {...listeners}
-        style={{ cursor: "grab", padding: "0 8px", color: "#aaa", fontSize: "18px" }}
+        style={{ cursor: "grab", color: "#ccc", fontSize: "20px" }}
       >
         ⠿
       </div>
       {page.thumbnail && (
         <img
           src={page.thumbnail}
-          style={{ height: "80px", border: "1px solid #ccc", flexShrink: 0 }}
+          style={{
+            height: "72px",
+            border: "1px solid #eee",
+            borderRadius: "4px",
+            flexShrink: 0,
+            transform: `rotate(${page.rotation}deg)`,
+            transition: "transform 0.2s",
+          }}
           alt=""
         />
       )}
-      <span style={{ flex: 1 }}>
-        {pdfFiles[page.fileId]?.name} - {page.pageIndex + 1}ページ
+      <span style={{ flex: 1, fontSize: "14px", color: "#333" }}>
+        {pdfFiles[page.fileId]?.name} — {page.pageIndex + 1}ページ
       </span>
-      <button onClick={() => moveUp(index)}>↑</button>
-      <button onClick={() => moveDown(index)} style={{ marginLeft: "4px" }}>↓</button>
-      <button onClick={() => removePage(index)} style={{ marginLeft: "4px" }}>削除</button>
+      <div style={{ display: "flex", gap: "4px" }}>
+        <button onClick={() => rotatePage(index)} style={btnStyle} title="回転">↻</button>
+        <button onClick={() => moveUp(index)} style={btnStyle}>↑</button>
+        <button onClick={() => moveDown(index)} style={btnStyle}>↓</button>
+        <button onClick={() => removePage(index)} style={{ ...btnStyle, color: "#e55" }}>✕</button>
+      </div>
     </div>
   )
 }
@@ -74,11 +95,13 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage }) {
 function App() {
   const [pdfFiles, setPdfFiles] = useState({})
   const [pages, setPages] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const nextId = useRef(0)
 
   const genId = () => String(nextId.current++)
 
   const addFiles = async (fileList) => {
+    setIsLoading(true)
     const newPdfFiles = {}
     const newPages = []
 
@@ -110,12 +133,13 @@ function App() {
           thumbnail = canvas.toDataURL()
         } catch {}
 
-        newPages.push({ id: genId(), fileId, pageIndex: i, thumbnail })
+        newPages.push({ id: genId(), fileId, pageIndex: i, thumbnail, rotation: 0 })
       }
     }
 
     setPdfFiles((prev) => ({ ...prev, ...newPdfFiles }))
     setPages((prev) => [...prev, ...newPages])
+    setIsLoading(false)
   }
 
   const moveUp = (index) => {
@@ -134,6 +158,12 @@ function App() {
 
   const removePage = (index) => {
     setPages(pages.filter((_, i) => i !== index))
+  }
+
+  const rotatePage = (index) => {
+    const newPages = [...pages]
+    newPages[index] = { ...newPages[index], rotation: (newPages[index].rotation + 90) % 360 }
+    setPages(newPages)
   }
 
   const handleDragEnd = (event) => {
@@ -159,6 +189,10 @@ function App() {
       }
       const srcPdf = loadedPdfs[page.fileId]
       const [copiedPage] = await mergedPdf.copyPages(srcPdf, [page.pageIndex])
+      if (page.rotation !== 0) {
+        const existing = copiedPage.getRotation().angle
+        copiedPage.setRotation(degrees((existing + page.rotation) % 360))
+      }
       mergedPdf.addPage(copiedPage)
     }
 
@@ -174,8 +208,11 @@ function App() {
   const sensors = useSensors(useSensor(PointerSensor))
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>PDF結合アプリ</h1>
+    <div style={{ maxWidth: "720px", margin: "0 auto", padding: "40px 20px", fontFamily: "sans-serif" }}>
+      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "8px" }}>PDF結合アプリ</h1>
+      <p style={{ color: "#666", fontSize: "14px", marginBottom: "24px" }}>
+        PDFをページ単位で並べ替えて結合できます。アップロード不要・無料。
+      </p>
 
       <div
         onDragOver={(e) => e.preventDefault()}
@@ -184,9 +221,12 @@ function App() {
           addFiles(e.dataTransfer.files)
         }}
         style={{
-          border: "2px dashed gray",
+          border: "2px dashed #bbb",
+          borderRadius: "12px",
           padding: "40px",
-          marginBottom: "20px",
+          marginBottom: "24px",
+          textAlign: "center",
+          background: "#fafafa",
           cursor: "pointer",
         }}
       >
@@ -196,12 +236,14 @@ function App() {
           accept=".pdf"
           onChange={(e) => addFiles(e.target.files)}
         />
-        <br />
-        <br />
-        ここにPDFをドラッグ
+        <p style={{ marginTop: "12px", color: "#888", fontSize: "14px" }}>ここにPDFをドラッグ、またはファイルを選択</p>
       </div>
 
-      <br />
+      {isLoading && (
+        <div style={{ textAlign: "center", padding: "20px", color: "#888", fontSize: "14px" }}>
+          処理中...
+        </div>
+      )}
 
       <DndContext
         sensors={sensors}
@@ -221,23 +263,31 @@ function App() {
               moveUp={moveUp}
               moveDown={moveDown}
               removePage={removePage}
+              rotatePage={rotatePage}
             />
           ))}
         </SortableContext>
       </DndContext>
 
-      <br />
-
-      <button
-        onClick={mergePDFs}
-        style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        PDFを結合
-      </button>
+      {pages.length > 0 && (
+        <div style={{ marginTop: "24px" }}>
+          <button
+            onClick={mergePDFs}
+            style={{
+              padding: "12px 32px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            PDFを結合してダウンロード
+          </button>
+        </div>
+      )}
     </div>
   )
 }
