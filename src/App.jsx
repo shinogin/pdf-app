@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from "react"
 import { PDFDocument, degrees } from "pdf-lib"
 import * as pdfjsLib from "pdfjs-dist"
+import JSZip from "jszip"
 import {
   DndContext,
   closestCenter,
@@ -96,6 +97,10 @@ function App() {
   const [pdfFiles, setPdfFiles] = useState({})
   const [pages, setPages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [outputName, setOutputName] = useState("merged")
+  const [outputFormat, setOutputFormat] = useState("pdf")
+  const [imageFormat, setImageFormat] = useState("png")
+  const [imageScale, setImageScale] = useState(2)
   const nextId = useRef(0)
 
   const genId = () => String(nextId.current++)
@@ -201,8 +206,68 @@ function App() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = "merged.pdf"
+    a.download = `${outputName || "merged"}.pdf`
     a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const exportAsImages = async () => {
+    if (pages.length === 0) return
+    setIsLoading(true)
+
+    try {
+      const mimeType = imageFormat === "png" ? "image/png" : "image/jpeg"
+      const ext = imageFormat === "png" ? "png" : "jpg"
+      const loadedDocs = {}
+      const images = []
+
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i]
+        if (!loadedDocs[page.fileId]) {
+          loadedDocs[page.fileId] = await pdfjsLib.getDocument({
+            data: new Uint8Array(pdfFiles[page.fileId].bytes),
+          }).promise
+        }
+        const pdfjsPage = await loadedDocs[page.fileId].getPage(page.pageIndex + 1)
+        const viewport = pdfjsPage.getViewport({ scale: imageScale, rotation: page.rotation })
+        const canvas = document.createElement("canvas")
+        canvas.width = viewport.width
+        canvas.height = viewport.height
+        const ctx = canvas.getContext("2d")
+        await pdfjsPage.render({ canvasContext: ctx, viewport }).promise
+
+        const blob = await new Promise((r) =>
+          canvas.toBlob(r, mimeType, imageFormat === "jpg" ? 0.92 : undefined)
+        )
+        images.push({ blob, name: `${outputName || "page"}_${String(i + 1).padStart(3, "0")}.${ext}` })
+      }
+
+      if (images.length === 1) {
+        const url = URL.createObjectURL(images[0].blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = images[0].name
+        a.click()
+        URL.revokeObjectURL(url)
+      } else {
+        const zip = new JSZip()
+        for (const img of images) zip.file(img.name, img.blob)
+        const zipBlob = await zip.generateAsync({ type: "blob" })
+        const url = URL.createObjectURL(zipBlob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `${outputName || "pages"}.zip`
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleExport = () => {
+    if (outputFormat === "pdf") mergePDFs()
+    else exportAsImages()
   }
 
   const sensors = useSensors(useSensor(PointerSensor))
@@ -273,21 +338,69 @@ function App() {
       </DndContext>
 
       {pages.length > 0 && (
-        <div style={{ marginTop: "24px" }}>
+        <div style={{ marginTop: "24px", padding: "20px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap", alignItems: "center" }}>
+            <label style={{ fontSize: "14px", color: "#555", whiteSpace: "nowrap" }}>ファイル名:</label>
+            <input
+              type="text"
+              value={outputName}
+              onChange={(e) => setOutputName(e.target.value)}
+              placeholder="merged"
+              style={{ flex: 1, minWidth: "120px", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap", alignItems: "center" }}>
+            <label style={{ fontSize: "14px", color: "#555", whiteSpace: "nowrap" }}>出力形式:</label>
+            <select
+              value={outputFormat}
+              onChange={(e) => setOutputFormat(e.target.value)}
+              style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
+            >
+              <option value="pdf">PDF（結合）</option>
+              <option value="image">画像に変換</option>
+            </select>
+            {outputFormat === "image" && (
+              <>
+                <select
+                  value={imageFormat}
+                  onChange={(e) => setImageFormat(e.target.value)}
+                  style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
+                >
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPEG</option>
+                </select>
+                <select
+                  value={imageScale}
+                  onChange={(e) => setImageScale(Number(e.target.value))}
+                  style={{ padding: "8px 12px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
+                >
+                  <option value={1}>低解像度（×1）</option>
+                  <option value={2}>標準（×2）</option>
+                  <option value={3}>高解像度（×3）</option>
+                </select>
+              </>
+            )}
+          </div>
+          {outputFormat === "image" && pages.length > 1 && (
+            <p style={{ fontSize: "12px", color: "#888", marginBottom: "12px" }}>
+              ※ 複数ページの場合、ZIPファイルとしてダウンロードされます
+            </p>
+          )}
           <button
-            onClick={mergePDFs}
+            onClick={handleExport}
+            disabled={isLoading}
             style={{
               padding: "12px 32px",
               fontSize: "16px",
               fontWeight: "bold",
-              background: "#2563eb",
+              background: isLoading ? "#94a3b8" : "#2563eb",
               color: "#fff",
               border: "none",
               borderRadius: "8px",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
             }}
           >
-            PDFを結合してダウンロード
+            {isLoading ? "処理中..." : outputFormat === "pdf" ? "PDFを結合してダウンロード" : "画像に変換してダウンロード"}
           </button>
         </div>
       )}
