@@ -64,7 +64,7 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage, rot
         {...listeners}
         style={{ cursor: "grab", color: "#ccc", fontSize: "20px" }}
       >
-        â ¿
+        ⠿
       </div>
       {page.thumbnail && (
         <img
@@ -89,6 +89,105 @@ function SortableItem({ page, pdfFiles, index, moveUp, moveDown, removePage, rot
         <button onClick={() => moveDown(index)} style={btnStyle}>↓</button>
         <button onClick={() => removePage(index)} style={{ ...btnStyle, color: "#e55" }}>✕</button>
       </div>
+    </div>
+  )
+}
+
+const faqs = [
+  { q: "完全無料で使えますか？", a: "はい、完全無料です。会員登録やクレジットカードも不要で、すべての機能を制限なくお使いいただけます。" },
+  { q: "ファイルはサーバーにアップロードされますか？", a: "されません。このツールはすべてブラウザ内（お使いの端末上）で動作します。PDFファイルが外部サーバーに送信されることは一切ありませんので、機密文書も安心してお使いいただけます。" },
+  { q: "何ページまで・何ファイルまで結合できますか？", a: "ページ数・ファイル数に制限はありません。ただし、非常に大きなファイルの場合はブラウザのメモリ状況によって処理に時間がかかる場合があります。" },
+  { q: "対応しているブラウザは？", a: "Google Chrome、Mozilla Firefox、Microsoft Edge、Safari（最新版）に対応しています。スマートフォン・タブレットのブラウザでもご利用いただけます。" },
+  { q: "ページの順番は自由に変えられますか？", a: "はい。ドラッグ＆ドロップで自由に並べ替えができます。↑↓ボタンでの移動、↻ボタンでのページ回転、ページ単位の削除にも対応しています。" },
+  { q: "PDFを画像（PNG・JPEG）に変換できますか？", a: "できます。出力形式で「画像に変換」を選ぶと、各ページをPNGまたはJPEG画像として保存できます。解像度は×1〜×3から選べ、並べ替えや回転もそのまま反映されます。" },
+  { q: "複数ページを画像にするとどうなりますか？", a: "2ページ以上ある場合は、各ページの画像を1つのZIPファイルにまとめてダウンロードします。ファイル名は指定した名前に連番（_001、_002…）が付きます。" },
+]
+
+function SeoContent() {
+  const [openFaq, setOpenFaq] = useState(null)
+  const s = {
+    wrap: { marginTop: "16px", lineHeight: "1.7", color: "var(--text)", textAlign: "left" },
+    section: { marginTop: "48px", paddingTop: "32px", borderTop: "1px solid var(--border)" },
+    h2: { fontSize: "20px", fontWeight: "700", margin: "0 0 16px", color: "var(--text-h)" },
+    features: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" },
+    card: { border: "1px solid var(--border)", borderRadius: "8px", padding: "16px" },
+    cardTitle: { fontWeight: "700", fontSize: "15px", marginBottom: "8px", color: "#2563eb" },
+    steps: { listStyle: "none", padding: 0, margin: 0 },
+    step: { display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-start" },
+    stepNum: { background: "#2563eb", color: "#fff", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", flexShrink: 0, fontSize: "14px" },
+    faqItem: { borderBottom: "1px solid var(--border)" },
+    faqQ: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "14px 0", cursor: "pointer", fontWeight: "600", fontSize: "15px", color: "var(--text-h)" },
+    faqA: { margin: 0, padding: "0 0 14px", fontSize: "14px" },
+  }
+  const features = [
+    ["🔒 ファイルは端末から出ない", "すべての処理はブラウザ内で完結。PDFが外部サーバーに送信されることは一切ありません。"],
+    ["🆓 完全無料・登録不要", "会員登録やインストールは不要。ブラウザで開くだけでPDFの結合が無料でできます。"],
+    ["📄 ページ単位で並べ替え", "複数のPDFをページ単位で読み込み、サムネイルを見ながら順序を変えたり回転したりして結合できます。"],
+    ["🖼️ 画像にも変換できる", "PDFの各ページをPNG・JPEG画像に変換。複数ページはZIPでまとめてダウンロードできます。"],
+  ]
+  const steps = [
+    ["PDFを追加", "上のエリアにPDFファイルをドラッグ＆ドロップするか、「ファイルを選択」から複数のPDFを選びます。"],
+    ["ページを並べ替え", "読み込んだPDFがページ一覧として表示されます。サムネイルを確認しながら、ドラッグまたは↑↓ボタンで順番を整えます。↻で回転、✕で不要なページを除外できます。"],
+    ["結合してダウンロード", "ファイル名と出力形式（PDF結合／画像に変換）を選び、ボタンを押すと並べ替えた順にダウンロードされます。"],
+  ]
+  return (
+    <div style={s.wrap}>
+      <section style={s.section} aria-labelledby="features-heading">
+        <h2 id="features-heading" style={s.h2}>このツールの特徴</h2>
+        <div style={s.features}>
+          {features.map(([title, desc]) => (
+            <div key={title} style={s.card}>
+              <div style={s.cardTitle}>{title}</div>
+              <p style={{ margin: 0, fontSize: "14px" }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={s.section} aria-labelledby="howto-heading">
+        <h2 id="howto-heading" style={s.h2}>使い方（3ステップ）</h2>
+        <ol style={s.steps}>
+          {steps.map(([title, desc], i) => (
+            <li key={title} style={s.step}>
+              <span style={s.stepNum}>{i + 1}</span>
+              <div><strong style={{ color: "var(--text-h)" }}>{title}</strong><br /><span style={{ fontSize: "14px" }}>{desc}</span></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section style={s.section} aria-labelledby="faq-heading">
+        <h2 id="faq-heading" style={s.h2}>よくある質問</h2>
+        <dl style={{ margin: 0 }}>
+          {faqs.map((faq, i) => (
+            <div key={faq.q} style={s.faqItem}>
+              <dt
+                style={s.faqQ}
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenFaq(openFaq === i ? null : i) } }}
+                aria-expanded={openFaq === i}
+              >
+                <span>Q. {faq.q}</span>
+                <span style={{ fontSize: "18px", color: "#2563eb" }}>{openFaq === i ? "−" : "+"}</span>
+              </dt>
+              <dd style={{ ...s.faqA, display: openFaq === i ? "block" : "none" }}>A. {faq.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section style={{ ...s.section, marginBottom: "32px" }} aria-labelledby="about-heading">
+        <h2 id="about-heading" style={s.h2}>PDF結合ツールについて</h2>
+        <p style={{ fontSize: "14px", margin: 0 }}>
+          このPDF結合ツールは、複数のPDFファイルを無料でオンライン結合（マージ）できるWebアプリです。
+          pdf-libおよびpdfjs-distを使用したクライアントサイド処理により、ファイルは一切サーバーに送信されません。
+          ページ単位での並べ替え・回転・削除に対応しており、サムネイルで内容を確認しながら編集できます。
+          PDFの各ページをPNG・JPEG画像に変換して保存することもできます。
+          契約書・請求書・報告書など、機密性の高いPDFの結合にも安心してご利用いただけます。
+        </p>
+      </section>
     </div>
   )
 }
@@ -404,6 +503,12 @@ function App() {
           </button>
         </div>
       )}
+
+      <SeoContent />
+
+      <footer style={{ textAlign: "center", padding: "24px 0 16px", fontSize: "13px", borderTop: "1px solid var(--border)" }}>
+        <a href="https://github.com/shinogin/pdf-app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>GitHub</a>
+      </footer>
     </div>
   )
 }
