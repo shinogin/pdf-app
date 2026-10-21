@@ -27,6 +27,7 @@ const btnStyle = {
   border: "1px solid #ddd",
   borderRadius: "4px",
   background: "#f9f9f9",
+  color: "#333",
   cursor: "pointer",
   fontSize: "14px",
 }
@@ -507,6 +508,8 @@ function App() {
       <SeoContent />
 
       <footer style={{ textAlign: "center", padding: "24px 0 16px", fontSize: "13px", borderTop: "1px solid var(--border)" }}>
+        <a href="/privacy.html" style={{ color: "inherit" }}>プライバシーポリシー</a>
+        {" | "}
         <a href="https://github.com/shinogin/pdf-app" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>GitHub</a>
       </footer>
     </div>
